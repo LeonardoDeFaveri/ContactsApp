@@ -1,4 +1,16 @@
 {
-    "string": "impressive",
-    "string_with_interpolation": "Hey $name, how are you?"
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+
+    "sign_in": "Sign in",
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "email_hint": "Enter your email",
+    "password_hint": "Enter your password",
+    "empty_field_warning": "Field cannot be left blanck",
+    "change_password_hint": "Forgor password?",
+    "create_new_user_hint": "Don't have an account?",
+    "sign_up": "Sign up",
+    "form_leaving_confirmation": "Are you sure you want to abandon the form? Any changes will be lost."
 }

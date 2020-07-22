@@ -1,4 +1,14 @@
 {
-    "string": "impressionante",
-    "string_with_interpolation": "Ciao $name, come stai?"
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+
+    "sign_in": "Accedi",
+    "login": "Accedi",
+    "email_hint": "Inserisci il tuo indirizzo email",
+    "password_hint": "Inserisci la tua password",
+    "empty_field_warning": "Il campo non può essere lasciato vuoto",
+    "change_password_hint": "Password dimenticata?",
+    "create_new_user_hint": "Non hai un account?",
+    "sign_up": "Creane uno",
+    "form_leaving_confirmation": "Sei sicuro di voler abbandonare la pagina? Ogni modifica andrà persa."
 }
