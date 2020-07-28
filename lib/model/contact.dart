@@ -1,13 +1,14 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:Contacts/models/email.dart';
-import 'package:Contacts/models/phone_number.dart';
-import 'package:Contacts/models/user.dart';
+import 'package:Contacts/model/email.dart';
+import 'package:Contacts/model/phone_number.dart';
+import 'package:Contacts/model/user.dart';
 
 part 'contact.g.dart';
 
 @JsonSerializable()
-class Contact {
+class Contact extends Equatable {
   final int id;
   final String firstName;
   final String familyName;
@@ -24,4 +25,7 @@ class Contact {
       _$ContactFromJson(json);
 
   Map<String, dynamic> toJson() => _$ContactToJson(this);
+
+  @override
+  List<Object> get props => [firstName, familyName, owner];
 }

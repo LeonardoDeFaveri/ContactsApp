@@ -10,5 +10,6 @@
     "change_password_hint": "Password dimenticata?",
     "create_new_user_hint": "Non hai un account?",
     "sign_up": "Creane uno",
-    "form_leaving_confirmation": "Sei sicuro di voler abbandonare la pagina? Ogni modifica andrà persa."
+    "form_leaving_confirmation": "Sei sicuro di voler abbandonare la pagina? Ogni modifica andrà persa.",
+    "wrong_credentials": "Credenziali sbagliate"
 }

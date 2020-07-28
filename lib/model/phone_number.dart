@@ -1,9 +1,10 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'phone_number.g.dart';
 
 @JsonSerializable()
-class PhoneNumber {
+class PhoneNumber extends Equatable {
   final int id;
   final String countryCode;
   final String areaCode;
@@ -18,4 +19,7 @@ class PhoneNumber {
       _$PhoneNumberFromJson(json);
 
   Map<String, dynamic> toJson() => _$PhoneNumberToJson(this);
+
+  @override
+  List<Object> get props => [countryCode, areaCode, prefix, phoneLine];
 }

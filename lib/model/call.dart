@@ -1,12 +1,13 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:Contacts/models/contact.dart';
-import 'package:Contacts/models/phone_number.dart';
+import 'package:Contacts/model/contact.dart';
+import 'package:Contacts/model/phone_number.dart';
 
 part 'call.g.dart';
 
 @JsonSerializable()
-class Call {
+class Call extends Equatable {
   final int id;
   final PhoneNumber callerNumber;
   final Contact callerContact;
@@ -21,4 +22,8 @@ class Call {
   factory Call.fromJson(Map<String, dynamic> json) => _$CallFromJson(json);
 
   Map<String, dynamic> toJson() => _$CallToJson(this);
+
+  @override
+  List<Object> get props =>
+      [calledNumber, callerContact, calledNumber, timestamp];
 }

@@ -1,12 +1,13 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:Contacts/models/contact.dart';
-import 'package:Contacts/models/user.dart';
+import 'package:Contacts/model/contact.dart';
+import 'package:Contacts/model/user.dart';
 
 part 'group.g.dart';
 
 @JsonSerializable()
-class Group {
+class Group extends Equatable {
   final int id;
   final String name;
   final User owner;
@@ -17,4 +18,7 @@ class Group {
   factory Group.fromJson(Map<String, dynamic> json) => _$GroupFromJson(json);
 
   Map<String, dynamic> toJson() => _$GroupToJson(this);
+
+  @override
+  List<Object> get props => [name, owner];
 }

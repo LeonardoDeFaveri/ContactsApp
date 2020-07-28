@@ -1,7 +1,14 @@
-import 'package:Contacts/models/user.dart';
+import 'dart:convert';
+
+import 'package:Contacts/bloc/user_bloc/user_bloc.dart';
+import 'package:Contacts/model/user.dart';
+import 'package:Contacts/routes/routes.dart';
 import 'package:Contacts/translations_managament/app_localizations.dart';
+import 'package:Contacts/util/prefs_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final kHintTextStyle = TextStyle(
   color: Colors.white54,
@@ -27,15 +34,82 @@ final kBoxDecorationStyle = BoxDecoration(
 );
 
 class LoginPage extends StatefulWidget {
+  final bool changedCredentials;
+
+  LoginPage({this.changedCredentials = false});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final UserBloc _userBloc = UserBloc();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _formEmpty = true;
   String _email = "";
   String _password = "";
+
+  Widget _buildLoginForm() {
+    return Stack(
+      children: <Widget>[
+        Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF73AEF5),
+                Color(0xFF61A4F1),
+                Color(0xFF478DE0),
+                Color(0xFF398AE5),
+              ],
+              stops: [0.1, 0.4, 0.7, 0.9],
+            ),
+          ),
+        ),
+        Container(
+          height: double.infinity,
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(
+              horizontal: 40.0,
+              vertical: 120.0,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    AppLocalizations.instance.translate('sign_in'),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'OpenSans',
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 30.0),
+                  _buildEmailTF(),
+                  SizedBox(
+                    height: 30.0,
+                  ),
+                  _buildPasswordTF(),
+                  _buildForgotPasswordBtn(),
+                  _buildLoginBtn(),
+                  _buildSignupBtn(),
+                ],
+              ),
+              onChanged: _onFormChange,
+              onWillPop: _onWillPop,
+            ),
+          ),
+        )
+      ],
+    );
+  }
 
   Widget _buildEmailTF() {
     return Column(
@@ -150,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
             : () {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
-                  _testCredentials();
+                  _tryLogin();
                 }
               },
       ),
@@ -185,71 +259,69 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget _buildLoading() {
+    return Center(
+      child: CircularProgressIndicator(
+        strokeWidth: 5.0,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFF73AEF5),
-                      Color(0xFF61A4F1),
-                      Color(0xFF478DE0),
-                      Color(0xFF398AE5),
-                    ],
-                    stops: [0.1, 0.4, 0.7, 0.9],
-                  ),
-                ),
-              ),
-              Container(
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40.0,
-                    vertical: 120.0,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+        child: BlocListener(
+          cubit: _userBloc,
+          listener: (context, state) async {
+            if (state is UserLoggedIn) {
+              if (state.logged) {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setString(
+                    PrefsKeys.USER, jsonEncode(state.user.toJson()));
+                Navigator.of(context).popAndPushNamed(RoutesNames.CONTACTS);
+              } else {
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
                       children: <Widget>[
-                        Text(
-                          AppLocalizations.instance.translate('sign_in'),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'OpenSans',
-                            fontSize: 30.0,
-                            fontWeight: FontWeight.bold,
+                        Icon(
+                          Icons.cancel,
+                          color: Colors.red,
+                        ),
+                        Padding(
+                          child: Text(
+                            AppLocalizations.instance
+                                .translate('wrong_credentials'),
                           ),
+                          padding: EdgeInsets.only(left: 5),
                         ),
-                        SizedBox(height: 30.0),
-                        _buildEmailTF(),
-                        SizedBox(
-                          height: 30.0,
-                        ),
-                        _buildPasswordTF(),
-                        _buildForgotPasswordBtn(),
-                        _buildLoginBtn(),
-                        _buildSignupBtn(),
                       ],
                     ),
-                    onChanged: _onFormChange,
-                    onWillPop: _onWillPop,
                   ),
-                ),
-              )
-            ],
+                );
+              }
+            }
+          },
+          child: BlocProvider(
+            create: (context) => _userBloc,
+            child: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: BlocBuilder<UserBloc, UserState>(
+                builder: (context, state) {
+                  if (state is UserInitial) {
+                    return _buildLoginForm();
+                  } else if (state is UserLoggingIn) {
+                    return _buildLoading();
+                  } else if (state is UserLoggedIn && !state.logged) {
+                    return _buildLoginForm();
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+            ),
           ),
         ),
       ),
@@ -259,7 +331,7 @@ class _LoginPageState extends State<LoginPage> {
   void _onFormChange() {
     _formKey.currentState.save();
     setState(() {
-      _formEmpty = !(_email.isNotEmpty && _password.isNotEmpty);
+      _formEmpty = !(_email.trim().isNotEmpty && _password.isNotEmpty);
     });
   }
 
@@ -289,7 +361,14 @@ class _LoginPageState extends State<LoginPage> {
         });
   }
 
-  void _testCredentials() {
-    final User user = User(_email, _password);
+  @override
+  void dispose() {
+    super.dispose();
+    _userBloc.close();
+  }
+
+  void _tryLogin() {
+    final user = User.fromClear(_email.trim(), _password.trim());
+    _userBloc.add(Login(user));
   }
 }
