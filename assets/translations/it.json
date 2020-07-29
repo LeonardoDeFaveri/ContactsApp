@@ -2,6 +2,9 @@
     "cancel": "Annulla",
     "confirm": "Conferma",
 
+    "timeout_execeded": "Il servizio non risponde",
+    "service_unreachable": "Il servizio è momentaneamente irraggiungibile",
+
     "sign_in": "Accedi",
     "login": "Accedi",
     "email_hint": "Inserisci il tuo indirizzo email",
@@ -11,5 +14,6 @@
     "create_new_user_hint": "Non hai un account?",
     "sign_up": "Creane uno",
     "form_leaving_confirmation": "Sei sicuro di voler abbandonare la pagina? Ogni modifica andrà persa.",
-    "wrong_credentials": "Credenziali sbagliate"
+    "wrong_credentials": "Credenziali sbagliate",
+    "credentials_changed": "Le credenziali sono state modificate"
 }

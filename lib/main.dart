@@ -25,6 +25,8 @@ class ContactsApp extends StatelessWidget {
     return MaterialApp(
       title: title,
       debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system,
+      darkTheme: ThemeData.dark(),
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -86,11 +88,15 @@ class _MyHomePageState extends State<MyHomePage> {
         return FutureBuilder(
           future: _service.testCredentials(user),
           builder: (context, snapshot) {
-            if (snapshot.data == null) return _buildLoading();
+            if (snapshot.hasError) return LoginPage();
 
-            if (snapshot.data) return ContactsPage();
+            if (snapshot.hasData) {
+              if (snapshot.data) return ContactsPage();
 
-            return LoginPage(changedCredentials: true);
+              return LoginPage(changedCredentials: true);
+            }
+
+            return _buildLoading();
           },
         );
       },

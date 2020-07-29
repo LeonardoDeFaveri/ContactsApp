@@ -2,6 +2,9 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
 
+    "service_unreachable": "The service is momentarily unreachable",
+    "timeout_execeded": "The service is not responding",
+
     "sign_in": "Sign in",
     "login": "Login",
     "email": "Email",
@@ -13,5 +16,6 @@
     "create_new_user_hint": "Don't have an account?",
     "sign_up": "Sign up",
     "form_leaving_confirmation": "Are you sure you want to abandon the form? Any changes will be lost.",
-    "wrong_credentials": "Wrong credentials"
+    "wrong_credentials": "Wrong credentials",
+    "credentials_changed": "Credentials have been changed"
 }

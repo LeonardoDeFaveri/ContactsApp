@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:Contacts/model/contact.dart';
 import 'package:Contacts/model/user.dart';
@@ -11,6 +12,7 @@ part 'user_state.dart';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
   final ContactsManager _service = ContactsManager();
+
   UserBloc() : super(UserInitial());
 
   @override
@@ -19,8 +21,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   ) async* {
     if (event is Login) {
       yield UserLoggingIn();
-      final logged = await _service.testCredentials(event.user);
-      yield UserLoggedIn(logged, event.user);
+      try {
+        final logged = await _service.testCredentials(event.user);
+        yield UserLoggedIn(logged, event.user);
+      } on SocketException {
+        yield UserError(serviceUnreachable: true);
+      } on TimeoutException {
+        yield UserError(timeoutExceded: true);
+      }
     }
   }
 }

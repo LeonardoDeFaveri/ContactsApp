@@ -39,15 +39,19 @@ class LoginPage extends StatefulWidget {
   LoginPage({this.changedCredentials = false});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginPageState createState() =>
+      _LoginPageState(credentialsChanged: this.changedCredentials);
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final UserBloc _userBloc = UserBloc();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final UserBloc _userBloc = UserBloc();
+  final bool credentialsChanged;
   bool _formEmpty = true;
   String _email = "";
   String _password = "";
+
+  _LoginPageState({this.credentialsChanged = false});
 
   Widget _buildLoginForm() {
     return Stack(
@@ -267,6 +271,35 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  void _showSnackBar(String messageName) {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: <Widget>[
+            Icon(
+              Icons.cancel,
+              color: Colors.red,
+            ),
+            Padding(
+              child: Text(
+                AppLocalizations.instance.translate(messageName),
+              ),
+              padding: EdgeInsets.only(left: 5),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (this.credentialsChanged) this._showSnackBar('credentials_changed');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -275,6 +308,13 @@ class _LoginPageState extends State<LoginPage> {
         child: BlocListener(
           cubit: _userBloc,
           listener: (context, state) async {
+            if (state is UserError) {
+              if (state.serviceUnreachable)
+                _showSnackBar('service_unreachable');
+
+              if (state.timeoutExceded) _showSnackBar('timeout_execeded');
+            }
+
             if (state is UserLoggedIn) {
               if (state.logged) {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -282,25 +322,7 @@ class _LoginPageState extends State<LoginPage> {
                     PrefsKeys.USER, jsonEncode(state.user.toJson()));
                 Navigator.of(context).popAndPushNamed(RoutesNames.CONTACTS);
               } else {
-                Scaffold.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.cancel,
-                          color: Colors.red,
-                        ),
-                        Padding(
-                          child: Text(
-                            AppLocalizations.instance
-                                .translate('wrong_credentials'),
-                          ),
-                          padding: EdgeInsets.only(left: 5),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                _showSnackBar('wrong_credentials');
               }
             }
           },
@@ -310,15 +332,9 @@ class _LoginPageState extends State<LoginPage> {
               onTap: () => FocusScope.of(context).unfocus(),
               child: BlocBuilder<UserBloc, UserState>(
                 builder: (context, state) {
-                  if (state is UserInitial) {
-                    return _buildLoginForm();
-                  } else if (state is UserLoggingIn) {
-                    return _buildLoading();
-                  } else if (state is UserLoggedIn && !state.logged) {
-                    return _buildLoginForm();
-                  } else {
-                    return Container();
-                  }
+                  if (state is UserLoggingIn) return _buildLoading();
+
+                  return _buildLoginForm();
                 },
               ),
             ),
